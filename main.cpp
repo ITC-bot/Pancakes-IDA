@@ -1,5 +1,4 @@
 #include <iostream>
-#include <queue>
 #include <string>
 #include <unordered_set>
 #include <stdlib.h>
@@ -51,7 +50,6 @@ string generar_caracteres_aleatorios(int n) {
     string pancakes = "";
     unordered_set<char> chars_set;
     srand(time(NULL));
-
     while (chars_set.size() < n) {
         char c = 'a' + rand() % 26;
         if (chars_set.find(c) == chars_set.end()) {
@@ -75,42 +73,36 @@ float h4(const string& pancakes, const string& target) {
 }
 
 // Función que realiza la búsqueda IDA*
-// Función que realiza la búsqueda IDA*
 void ida_star(string pancakes) {
     string target = pancakes;
     sort(target.begin(), target.end());
     int umbral = h4(pancakes, target);
     int count = 0;
-
     while (true) {
         int proximo_umbral = INT_MAX;
         unordered_set<string> visitados;
+        visitados.insert(pancakes);
         stack<pair<string, int>> pila;
         pila.push({pancakes, 0});
-
         while (!pila.empty()) {
             string curr_pancakes = pila.top().first;
             int g = pila.top().second;
             pila.pop();
             count++;
-
             int f = g + h4(curr_pancakes, target);
             if (f > umbral) {
                 proximo_umbral = min(proximo_umbral, f);
                 continue;
             }
-
             if (curr_pancakes == target) {
                 cout << "Solucion encontrada: " << curr_pancakes << endl;
                 cout << "Numero de nodos visitados: " << count << endl;
                 return;
             }
-
             vector<string> sucesores = generar_sucesores(curr_pancakes);
             sort(sucesores.begin(), sucesores.end(), [target](const string& a, const string& b) {
                 return h4(a, target) < h4(b, target);
             });
-
             for (string sucesor : sucesores) {
                 if (visitados.find(sucesor) == visitados.end()) {
                     pila.push({sucesor, g+1});
@@ -118,7 +110,6 @@ void ida_star(string pancakes) {
                 }
             }
         }
-
         if (proximo_umbral == INT_MAX) {
             cout << "No se encontro solucion." << endl;
             cout << "Numero de nodos visitados: " << count << endl;
