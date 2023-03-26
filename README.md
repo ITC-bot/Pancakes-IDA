@@ -1,6 +1,8 @@
 # Juegos-de-los-Pancakes-aplicando-IDA
 Juego de los pancakes (pancake sorting) aplicando IDA
 
+Hecho por Marcos Zacarias, ITC-TM, Universidad Autonoma de Baja California Sur
+
 Pequeña explicacion de las funciones:
 
 --"void voltear(string& pancakes, int k)" Esta función recibe una cadena de caracteres, en este caso, los pancakes, y un entero k, y voltea los primeros k caracteres de la cadena. Se utiliza para simular la acción de voltear un número determinado de pancakes en una pila.
