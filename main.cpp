@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <functional>
 #include <math.h>
-#include <stack>
 
 using namespace std;
 float inf = std::numeric_limits<float>::infinity();
@@ -72,60 +71,52 @@ float h4(const string& pancakes, const string& target) {
     return c;
 }
 
-// Función que realiza la búsqueda IDA*
-void ida_star(string pancakes) {
-    string target = pancakes;
-    sort(target.begin(), target.end());
-    int umbral = h4(pancakes, target);
-    int count = 0;
-    while (true) {
-        int proximo_umbral = INT_MAX;
-        unordered_set<string> visitados;
-        visitados.insert(pancakes);
-        stack<pair<string, int>> pila;
-        pila.push({pancakes, 0});
-        while (!pila.empty()) {
-            string curr_pancakes = pila.top().first;
-            int g = pila.top().second;
-            pila.pop();
-            count++;
-            int f = g + h4(curr_pancakes, target);
-            if (f > umbral) {
-                proximo_umbral = min(proximo_umbral, f);
-                continue;
-            }
-            if (curr_pancakes == target) {
-                cout << "Solucion encontrada: " << curr_pancakes << endl;
-                cout << "Numero de nodos visitados: " << count << endl;
-                return;
-            }
-            vector<string> sucesores = generar_sucesores(curr_pancakes);
-            sort(sucesores.begin(), sucesores.end(), [target](const string& a, const string& b) {
-                return h4(a, target) < h4(b, target);
-            });
-            for (string sucesor : sucesores) {
-                if (visitados.find(sucesor) == visitados.end()) {
-                    pila.push({sucesor, g+1});
-                    visitados.insert(sucesor);
-                }
-            }
-        }
-        if (proximo_umbral == INT_MAX) {
-            cout << "No se encontro solucion." << endl;
-            cout << "Numero de nodos visitados: " << count << endl;
-            return;
-        }
-        umbral = proximo_umbral;
+// Función que implementa la búsqueda con IDA*
+string ida_estrella(const string& pancakes, const string& target, float cost, float threshold, string path, int& nodos_visitados) {
+    float f = cost + h4(pancakes, target);
+    if (f > threshold) {
+        return "inf";
     }
+    if (esta_ordenada(pancakes)) {
+        return pancakes;
+    }
+    string min_path = "inf";
+    for (auto sucesor : generar_sucesores(pancakes)) {
+        if (path.find(sucesor) != std::string::npos || cost + h4(sucesor, target) > threshold) {
+            nodos_visitados++;
+            continue;
+        }
+        float new_cost = cost + 1;
+        string t = ida_estrella(sucesor, target, new_cost, threshold, path + sucesor + " ", nodos_visitados);
+        if (t != "inf" && (min_path == "inf" || t.size() < min_path.size())) {
+            min_path = t;
+        }
+    }
+    return min_path;
 }
 
-//Funcion principal
 int main() {
     int n;
     cout << "Ingrese el numero de caracteres de pancakes: ";
     cin >> n;
     string pancakes = generar_caracteres_aleatorios(n);
     cout << "Pila de pancakes original: " << pancakes << endl;
-    ida_star(pancakes);
+    string target = pancakes;
+    sort(target.begin(), target.end());  // Pila objetivo ordenada
+    float threshold = h4(pancakes, target);  // Umbral inicial
+    int nodos_visitados = 0;
+    while (true) {
+        string ruta_movimiento = ida_estrella(pancakes, target, 0, threshold, "", nodos_visitados);
+        if (ruta_movimiento == "inf") {
+            // Si la ruta de movimiento mínima no fue encontrada, aumenta el umbral
+            threshold++;
+        } else {
+            // Si se encontró la ruta de movimiento mínima, finaliza el ciclo
+            cout << "Solucion encontrada : " << ruta_movimiento << endl;
+            break;
+        }
+    }
+    cout << "Numero de nodos visitados: " << nodos_visitados << endl;
+
     return 0;
 }
